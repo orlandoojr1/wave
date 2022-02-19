@@ -13,53 +13,34 @@ _id = 0
 
 
 class Issue:
-    def __init__(self, text: str, status: str, progress: float, icon: str, state: str, created: str):
+    def __init__(self, text: str, status: str, created: str):
         global _id
         _id += 1
         self.id = f'I{_id}'
         self.text = text
         self.status = status
-        self.views = 0
-        self.progress = progress
-        self.icon = icon
         self.created = created
-        self.state = state
 
 
 # Create some issues
-issues_group_1 = [
+issues_foo = [
     Issue(
         text=fake.sentence(),
         status=('Closed' if i % 2 == 0 else 'Open'),
-        progress=random.random(),
-        icon=('BoxCheckmarkSolid' if random.random() > 0.5 else 'BoxMultiplySolid'),
-        state=('RUNNING' if random.random() > 0.5 else 'DONE,SUCCESS'),
         created=fake.iso8601()) for i in range(40)
 ]
 
-issues_group_2 = [
+issues_bar = [
     Issue(
         text=fake.sentence(),
         status=('Closed' if i % 2 == 0 else 'Open'),
-        progress=random.random(),
-        icon=('BoxCheckmarkSolid' if random.random() > 0.5 else 'BoxMultiplySolid'),
-        state=('RUNNING' if random.random() > 0.5 else 'DONE,SUCCESS'),
         created=fake.iso8601()) for i in range(30)
 ]
 
 # Create columns for our issue table.
 columns = [
-    ui.table_column(name='text', label='Issue', sortable=True, searchable=True, max_width='300'),
+    ui.table_column(name='text', label='Issues reported by', sortable=True, searchable=True, max_width='300'),
     ui.table_column(name='status', label='Status', filterable=True),
-    ui.table_column(name='done', label='Done', cell_type=ui.icon_table_cell_type()),
-    ui.table_column(name='views', label='Views', sortable=True, data_type='number'),
-    ui.table_column(name='progress', label='Progress', cell_type=ui.progress_table_cell_type()),
-    ui.table_column(name='tag', label='State', min_width='170px', cell_type=ui.tag_table_cell_type(name='tags', tags=[
-                    ui.tag(label='RUNNING', color='#D2E3F8'),
-                    ui.tag(label='DONE', color='$red'),
-                    ui.tag(label='SUCCESS', color='$mint'),
-                    ]
-    )),
     ui.table_column(name='created', label='Created', sortable=True, data_type='time'),
 ]
 
@@ -71,14 +52,14 @@ async def serve(q: Q):
             name='issues',
             columns=columns,
             groups=[
-                Group("Group 1", [
+                Group("Foo company", [
                     ui.table_row(name=issue.id, 
-                        cells=[issue.text, issue.status, issue.icon, str(issue.views), str(issue.progress), issue.state, issue.created]
-                    ) for issue in issues_group_1]), 
-                Group("Group 2", [
-                    ui.table_row(name=issue.id + 'duplicate', 
-                        cells=[issue.text, issue.status, issue.icon, str(issue.views), str(issue.progress), issue.state, issue.created]
-                    ) for issue in issues_group_2])],
+                        cells=[issue.text, issue.status, issue.created]
+                    ) for issue in issues_foo]), 
+                Group("Bar company", [
+                    ui.table_row(name=issue.id, 
+                        cells=[issue.text, issue.status, issue.created]
+                    ) for issue in issues_bar])],
             groupable=True,
             downloadable=True,
             resettable=True,

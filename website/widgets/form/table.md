@@ -131,7 +131,7 @@ q.page['example'] = ui.form_card(box='1 1 3 4', items=[
 ])
 ```
 
-## With group by
+## Group by<a name="groupable"></a>
 
 Another cool feature of the Wave table is group by. All it takes is to specify a `groupable` option
 on the table and a dropdown will render with columns on which a user can group by data.
@@ -212,6 +212,33 @@ q.page['example'] = ui.form_card(box='1 1 3 3', items=[
 ## With tags
 
 Use tags to emphasize a specific value, usually an enum value like a certain state for example. For multiple tags in a single row use `,` as a delimiter.
+
+```py
+q.page['example'] = ui.form_card(box='1 1 3 3', items=[
+    ui.table(
+        name='table', 
+        columns=[
+            ui.table_column(name='text', label='Process'),
+            ui.table_column(name='tag', label='Status', cell_type=ui.tag_table_cell_type(
+                name='tags',
+                tags=[
+                    ui.tag(label='FAIL', color='$red'),
+                    ui.tag(label='DONE', color='#D2E3F8', label_color='#053975'),
+                    ui.tag(label='SUCCESS', color='$mint'),
+                ]
+            ))
+        ],
+        rows=[
+            ui.table_row(name='row1', cells=['Process1', 'FAIL']),
+            ui.table_row(name='row2', cells=['Process2', 'SUCCESS,DONE']),
+            ui.table_row(name='row3', cells=['Process3', 'DONE']),
+        ])
+])
+```
+
+## Custom groups
+
+If [groupable](#groupable) prop is not enough, you can specify groups 
 
 ```py
 q.page['example'] = ui.form_card(box='1 1 3 3', items=[
