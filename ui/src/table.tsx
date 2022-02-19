@@ -64,6 +64,17 @@ interface TableRow {
   cells: S[]
 }
 
+/**
+ * Make rows within the table collapsible/expandable.
+ *
+ * This type of table is best used for cases when your data makes sense to be presented in chunks rather than a single flat list.
+ */
+interface Group {
+  /** The title of the group. */
+  label: S
+  /** The rows in this group. */
+  rows: TableRow[]
+}
 
 /**
  * Create an interactive table.
@@ -87,11 +98,11 @@ export interface Table {
   name: Id
   /** The columns in this table. */
   columns: TableColumn[]
-  /** The rows in this table. */
-  rows: TableRow[]
+  /** The rows in this table. Mutually exclusive with `groups` attr. */
+  rows?: TableRow[]
   /** True to allow multiple rows to be selected. */
   multiple?: B
-  /** True to allow group by feature. */
+  /** True to allow group by feature. Ignored if `groups` are specified. */
   groupable?: B
   /** Indicates whether the contents of this table can be downloaded and saved as a CSV file. Defaults to False. */
   downloadable?: B
@@ -109,6 +120,8 @@ export interface Table {
   visible?: B
   /** An optional tooltip message displayed when a user clicks the help icon to the right of the component. */
   tooltip?: S
+  /** Creates collapsible / expandable groups of data rows. Mutually exclusive with `rows` attr. */
+  groups?: Group[]
 }
 
 type WaveColumn = Fluent.IColumn & {
@@ -344,7 +357,7 @@ const
                   marginLeft: -8,
                 }
               }}
-              className={groups ? css.hideCellGroupCollapse : ''}
+              className={(groups && !m.groups) ? css.hideCellGroupCollapse : ''}
             />
           </Fluent.Sticky>
         )
@@ -416,24 +429,57 @@ const
     )
   }
 
+// TODO: fix table reset
+// TODO: fix filtering
+// TODO: collapse/expand when clicking on group header
+// TODO: try out different props combination with groups
 
 export const
   XTable = ({ model: m }: { model: Table }) => {
+    React.useMemo(() => { if (m.groups) m.groupable = false }, [m]) // TODO: re-implement without using "m" dependency
     const
-      items = React.useMemo(() => m.rows.map(r => {
+      rows = React.useMemo(() => {
+        if (m.rows) return m.rows
+        else if (m.groups) {
+          return m.groups.reduce((acc, { rows }) => {
+            acc.push(...rows)
+            return acc
+          }, [] as TableRow[])
+        }
+        else return []
+      }, [m.rows, m.groups]),
+      getItem = React.useCallback((r: TableRow) => {
         const item: Fluent.IObjectWithKey & Dict<any> = { key: r.name }
         for (let i = 0, n = r.cells.length; i < n; i++) {
           const col = m.columns[i]
           item[col.name] = r.cells[i]
         }
         return item
-      }), [m.rows, m.columns]),
+      }, [m.columns]),
+      items = React.useMemo(() =>
+        m.groups ? m.groups.reduce((acc, { rows, label }) => {
+          const item = (rows.map(r => {
+            return { ...getItem(r), group: label }
+          }))
+          acc.push(...item)
+          return acc
+        }, [] as (Fluent.IObjectWithKey & Dict<any> & { group?: string })[]) :
+          (m.rows || []).map(r => {
+            return getItem(r)
+          })
+        , [m.rows, m.groups, getItem]),
+      customGroups = React.useMemo(() => {
+        return m.groups ? m.groups.reduce((acc, { rows, label }, idx) => {
+          acc.push({ key: label, name: label, startIndex: idx > 0 ? acc[idx - 1].startIndex + acc[idx - 1].count : 0, count: rows.length, isCollapsed: true })
+          return acc
+        }, [] as Fluent.IGroup[]) : undefined
+      }, [m.groups]),
       isMultiple = Boolean(m.values?.length || m.multiple),
       [filteredItems, setFilteredItems] = React.useState(items),
       searchableKeys = React.useMemo(() => m.columns.filter(({ searchable }) => searchable).map(({ name }) => name), [m.columns]),
       [searchStr, setSearchStr] = React.useState(''),
       [selectedFilters, setSelectedFilters] = React.useState<Dict<S[]> | null>(null),
-      [groups, setGroups] = React.useState<Fluent.IGroup[] | undefined>(),
+      [groups, setGroups] = React.useState<Fluent.IGroup[] | undefined>(customGroups),
       [groupByKey, setGroupByKey] = React.useState('*'),
       groupByOptions: Fluent.IDropdownOption[] = React.useMemo(() =>
         m.groupable ? [{ key: '*', text: '(No Grouping)' }, ...m.columns.map(col => ({ key: col.name, text: col.label }))] : [], [m.columns, m.groupable]
@@ -463,7 +509,13 @@ export const
             if (isNaN(Number(key)) && !isNaN(Date.parse(key))) name = new Date(key).toLocaleString()
 
             return { key, name, startIndex: prevSum, count: groupedBy[key].length, isCollapsed: true }
-          })
+          }),
+          customG = m.groups ? filteredItems.reduce((acc, { group }, idx) => {
+            const lastG = acc[acc.length - 1]
+            if (lastG?.key === group) lastG.count = lastG.count + 1
+            else acc.push({ key: group, name: group, startIndex: idx, count: 1, isCollapsed: false })
+            return acc
+          }, [] as Fluent.IGroup[]) : undefined
 
         groups.sort(({ name: name1 }, { name: name2 }) => {
           const numName1 = Number(name1), numName2 = Number(name2)
@@ -475,8 +527,8 @@ export const
           return name2 < name1 ? 1 : -1
         })
 
-        return { groupedBy, groups }
-      }, []),
+        return { groupedBy, groups: customG || groups }
+      }, [m.groups]),
       initGroups = React.useCallback(() => {
         setGroupByKey(groupByKey => {
           setFilteredItems(filteredItems => {
@@ -527,7 +579,7 @@ export const
       download = () => {
         // TODO: Prompt a dialog for name, encoding, etc.
         const
-          data = toCSV([m.columns.map(({ label, name }) => label || name), ...m.rows.map(({ cells }) => cells)]),
+          data = toCSV([m.columns.map(({ label, name }) => label || name), ...rows.map(({ cells }) => cells)]),
           a = document.createElement('a'),
           blob = new Blob([data], { type: "octet/stream" }),
           url = window.URL.createObjectURL(blob)
@@ -539,7 +591,7 @@ export const
         window.URL.revokeObjectURL(url)
       },
       isFilterable = m.columns.some(c => c.filterable),
-      shouldShowFooter = m.downloadable || m.resettable || isSearchable || isFilterable || m.rows.length > MIN_ROWS_TO_DISPLAY_FOOTER,
+      shouldShowFooter = m.downloadable || m.resettable || isSearchable || isFilterable || rows.length > MIN_ROWS_TO_DISPLAY_FOOTER,
       Footer = () => {
         if (!shouldShowFooter) return null
 
@@ -567,7 +619,7 @@ export const
               }
             }}>
             {
-              (isFilterable || isSearchable || m.rows.length > MIN_ROWS_TO_DISPLAY_FOOTER) && (
+              (isFilterable || isSearchable || rows.length > MIN_ROWS_TO_DISPLAY_FOOTER) && (
                 <Fluent.Text variant='smallPlus' block styles={{ root: { whiteSpace: 'nowrap' } }}>Rows:
                   <b style={{ paddingLeft: 5 }}>{formatNum(filteredItems.length)} of {formatNum(items.length)}</b>
                 </Fluent.Text>

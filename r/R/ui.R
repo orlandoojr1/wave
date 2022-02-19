@@ -1508,6 +1508,26 @@ ui_table_row <- function(
   return(.o)
 }
 
+#' Make rows within the table collapsible/expandable.
+#' 
+#' This type of table is best used for cases when your data makes sense to be presented in chunks rather than a single flat list.
+#'
+#' @param label The title of the group.
+#' @param rows The rows in this group.
+#' @return A Group instance.
+#' @export
+ui_group <- function(
+  label,
+  rows) {
+  .guard_scalar("label", "character", label)
+  .guard_vector("rows", "WaveTableRow", rows)
+  .o <- list(
+    label=label,
+    rows=rows)
+  class(.o) <- append(class(.o), c(.wave_obj, "WaveGroup"))
+  return(.o)
+}
+
 #' Create an interactive table.
 #' 
 #' This table differs from a markdown table in that it supports clicking or selecting rows. If you simply want to
@@ -1526,9 +1546,9 @@ ui_table_row <- function(
 #'
 #' @param name An identifying name for this component.
 #' @param columns The columns in this table.
-#' @param rows The rows in this table.
+#' @param rows The rows in this table. Mutually exclusive with `groups` attr.
 #' @param multiple True to allow multiple rows to be selected.
-#' @param groupable True to allow group by feature.
+#' @param groupable True to allow group by feature. Ignored if `groups` are specified.
 #' @param downloadable Indicates whether the contents of this table can be downloaded and saved as a CSV file. Defaults to False.
 #' @param resettable Indicates whether a Reset button should be displayed to reset search / filter / group-by values to their defaults. Defaults to False.
 #' @param height The height of the table, e.g. '400px', '50%', etc.
@@ -1538,12 +1558,13 @@ ui_table_row <- function(
 #'   One of 'always', 'on-hover', 'hidden'. See enum h2o_wave.ui.TableCheckboxVisibility.
 #' @param visible True if the component should be visible. Defaults to True.
 #' @param tooltip An optional tooltip message displayed when a user clicks the help icon to the right of the component.
+#' @param groups Creates collapsible / expandable groups of data rows. Mutually exclusive with `rows` attr.
 #' @return A Table instance.
 #' @export
 ui_table <- function(
   name,
   columns,
-  rows,
+  rows = NULL,
   multiple = NULL,
   groupable = NULL,
   downloadable = NULL,
@@ -1553,7 +1574,8 @@ ui_table <- function(
   values = NULL,
   checkbox_visibility = NULL,
   visible = NULL,
-  tooltip = NULL) {
+  tooltip = NULL,
+  groups = NULL) {
   .guard_scalar("name", "character", name)
   .guard_vector("columns", "WaveTableColumn", columns)
   .guard_vector("rows", "WaveTableRow", rows)
@@ -1567,6 +1589,7 @@ ui_table <- function(
   # TODO Validate checkbox_visibility
   .guard_scalar("visible", "logical", visible)
   .guard_scalar("tooltip", "character", tooltip)
+  .guard_vector("groups", "WaveGroup", groups)
   .o <- list(table=list(
     name=name,
     columns=columns,
@@ -1580,7 +1603,8 @@ ui_table <- function(
     values=values,
     checkbox_visibility=checkbox_visibility,
     visible=visible,
-    tooltip=tooltip))
+    tooltip=tooltip,
+    groups=groups))
   class(.o) <- append(class(.o), c(.wave_obj, "WaveComponent"))
   return(.o)
 }
