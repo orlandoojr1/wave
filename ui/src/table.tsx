@@ -74,6 +74,8 @@ interface TableGroup {
   label: S
   /** The rows in this group. */
   rows: TableRow[]
+  /** Indicates whether the table group should be displayed in collapsed or expanded state by default. Defaults to true. */
+  collapsed?: B
 }
 
 /**
@@ -469,8 +471,8 @@ export const
           })
         , [m.rows, m.groups, getItem]),
       customGroups = React.useMemo(() => {
-        return m.groups ? m.groups.reduce((acc, { rows, label }, idx) => {
-          acc.push({ key: label, name: label, startIndex: idx > 0 ? acc[idx - 1].startIndex + acc[idx - 1].count : 0, count: rows.length, isCollapsed: true })
+        return m.groups ? m.groups.reduce((acc, { rows, label, collapsed = true }, idx) => {
+          acc.push({ key: label, name: label, startIndex: idx > 0 ? acc[idx - 1].startIndex + acc[idx - 1].count : 0, count: rows.length, isCollapsed: collapsed })
           return acc
         }, [] as Fluent.IGroup[]) : undefined
       }, [m.groups]),

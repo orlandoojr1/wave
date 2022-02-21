@@ -1296,6 +1296,7 @@ def table_row(
 def table_group(
         label: str,
         rows: List[TableRow],
+        collapsed: Optional[bool] = None,
 ) -> TableGroup:
     """Make rows within the table collapsible/expandable.
 
@@ -1304,12 +1305,14 @@ def table_group(
     Args:
         label: The title of the group.
         rows: The rows in this group.
+        collapsed: Indicates whether the table group should be displayed in collapsed or expanded state by default. Defaults to true.
     Returns:
         A `h2o_wave.types.TableGroup` instance.
     """
     return TableGroup(
         label,
         rows,
+        collapsed,
     )
 
 

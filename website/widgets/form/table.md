@@ -238,27 +238,27 @@ q.page['example'] = ui.form_card(box='1 1 3 3', items=[
 
 ## Custom groups
 
-If [groupable](#groupable) prop is not enough, you can specify groups 
+If [groupable](#groupable) prop does not suit your needs, you can specify your custom groups with `groups` prop.
+With `collapsed` attribute it is also possible for each group to set whether the group should be displayed in collapsed or expanded state by default.
 
 ```py
-q.page['example'] = ui.form_card(box='1 1 3 3', items=[
+q.page['example'] = ui.form_card(box='1 1 3 4', items=[
     ui.table(
         name='table', 
         columns=[
-            ui.table_column(name='text', label='Process'),
-            ui.table_column(name='tag', label='Status', cell_type=ui.tag_table_cell_type(
-                name='tags',
-                tags=[
-                    ui.tag(label='FAIL', color='$red'),
-                    ui.tag(label='DONE', color='#D2E3F8', label_color='#053975'),
-                    ui.tag(label='SUCCESS', color='$mint'),
-                ]
-            ))
+            ui.table_column(name='task', label='Task'),
+            ui.table_column(name='priority', label='Priority')
         ],
-        rows=[
-            ui.table_row(name='row1', cells=['Process1', 'FAIL']),
-            ui.table_row(name='row2', cells=['Process2', 'SUCCESS,DONE']),
-            ui.table_row(name='row3', cells=['Process3', 'DONE']),
+        groups=[
+                ui.table_group("Assigned to Bob", [
+                    ui.table_row(name='row1', cells=['Task1', 'Moderate']),
+                    ui.table_row(name='row2', cells=['Task2', 'High'])
+                    ]), 
+                ui.table_group("Assigned to John", [
+                    ui.table_row(name='row3', cells=['Task3', 'High']),
+                    ui.table_row(name='row4', cells=['Task3', 'Low']),
+                    ui.table_row(name='row5', cells=['Task3', 'Very High'])
+                    ], collapsed=False)
         ])
 ])
 ```

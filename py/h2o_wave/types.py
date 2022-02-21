@@ -3376,21 +3376,27 @@ class TableGroup:
             self,
             label: str,
             rows: List[TableRow],
+            collapsed: Optional[bool] = None,
     ):
         _guard_scalar('TableGroup.label', label, (str,), False, False, False)
         _guard_vector('TableGroup.rows', rows, (TableRow,), False, False, False)
+        _guard_scalar('TableGroup.collapsed', collapsed, (bool,), False, True, False)
         self.label = label
         """The title of the group."""
         self.rows = rows
         """The rows in this group."""
+        self.collapsed = collapsed
+        """Indicates whether the table group should be displayed in collapsed or expanded state by default. Defaults to true."""
 
     def dump(self) -> Dict:
         """Returns the contents of this object as a dict."""
         _guard_scalar('TableGroup.label', self.label, (str,), False, False, False)
         _guard_vector('TableGroup.rows', self.rows, (TableRow,), False, False, False)
+        _guard_scalar('TableGroup.collapsed', self.collapsed, (bool,), False, True, False)
         return _dump(
             label=self.label,
             rows=[__e.dump() for __e in self.rows],
+            collapsed=self.collapsed,
         )
 
     @staticmethod
@@ -3400,11 +3406,15 @@ class TableGroup:
         _guard_scalar('TableGroup.label', __d_label, (str,), False, False, False)
         __d_rows: Any = __d.get('rows')
         _guard_vector('TableGroup.rows', __d_rows, (dict,), False, False, False)
+        __d_collapsed: Any = __d.get('collapsed')
+        _guard_scalar('TableGroup.collapsed', __d_collapsed, (bool,), False, True, False)
         label: str = __d_label
         rows: List[TableRow] = [TableRow.load(__e) for __e in __d_rows]
+        collapsed: Optional[bool] = __d_collapsed
         return TableGroup(
             label,
             rows,
+            collapsed,
         )
 
 

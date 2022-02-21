@@ -1514,16 +1514,20 @@ ui_table_row <- function(
 #'
 #' @param label The title of the group.
 #' @param rows The rows in this group.
+#' @param collapsed Indicates whether the table group should be displayed in collapsed or expanded state by default. Defaults to true.
 #' @return A TableGroup instance.
 #' @export
 ui_table_group <- function(
   label,
-  rows) {
+  rows,
+  collapsed = NULL) {
   .guard_scalar("label", "character", label)
   .guard_vector("rows", "WaveTableRow", rows)
+  .guard_scalar("collapsed", "logical", collapsed)
   .o <- list(
     label=label,
-    rows=rows)
+    rows=rows,
+    collapsed=collapsed)
   class(.o) <- append(class(.o), c(.wave_obj, "WaveTableGroup"))
   return(.o)
 }

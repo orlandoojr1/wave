@@ -1,5 +1,6 @@
-# Table
-# Use a #table to display tabular data.
+# Table / Groups
+# Manage data in custom groups
+# #table
 # ---
 import random
 
@@ -53,8 +54,7 @@ async def serve(q: Q):
             columns=columns,
             groups=[
                 ui.table_group("Foo company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_foo]),
-                ui.table_group("Bar company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_bar])],
-            groupable=True,
+                ui.table_group("Bar company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_bar], collapsed=False)],
             downloadable=True,
             resettable=True,
             height='800px'

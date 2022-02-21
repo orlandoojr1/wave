@@ -1528,7 +1528,7 @@
   "Wave Full TableGroup": {
     "prefix": "w_full_table_group",
     "body": [
-      "ui.table_group(label='$1', rows=[\n\t\t$2\t\t\n]),$0"
+      "ui.table_group(label='$1', collapsed=${2:true}, rows=[\n\t\t$3\t\t\n]),$0"
     ],
     "description": "Create a full Wave TableGroup."
   },
