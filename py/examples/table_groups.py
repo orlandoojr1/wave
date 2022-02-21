@@ -5,7 +5,7 @@ import random
 
 from faker import Faker
 
-from h2o_wave import main, app, Q, ui, Group
+from h2o_wave import main, app, Q, ui
 
 fake = Faker()
 
@@ -52,14 +52,8 @@ async def serve(q: Q):
             name='issues',
             columns=columns,
             groups=[
-                Group("Foo company", [
-                    ui.table_row(name=issue.id, 
-                        cells=[issue.text, issue.status, issue.created]
-                    ) for issue in issues_foo]), 
-                Group("Bar company", [
-                    ui.table_row(name=issue.id, 
-                        cells=[issue.text, issue.status, issue.created]
-                    ) for issue in issues_bar])],
+                ui.table_group("Foo company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_foo]),
+                ui.table_group("Bar company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_bar])],
             groupable=True,
             downloadable=True,
             resettable=True,

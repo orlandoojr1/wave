@@ -1514,9 +1514,9 @@ ui_table_row <- function(
 #'
 #' @param label The title of the group.
 #' @param rows The rows in this group.
-#' @return A Group instance.
+#' @return A TableGroup instance.
 #' @export
-ui_group <- function(
+ui_table_group <- function(
   label,
   rows) {
   .guard_scalar("label", "character", label)
@@ -1524,7 +1524,7 @@ ui_group <- function(
   .o <- list(
     label=label,
     rows=rows)
-  class(.o) <- append(class(.o), c(.wave_obj, "WaveGroup"))
+  class(.o) <- append(class(.o), c(.wave_obj, "WaveTableGroup"))
   return(.o)
 }
 
@@ -1589,7 +1589,7 @@ ui_table <- function(
   # TODO Validate checkbox_visibility
   .guard_scalar("visible", "logical", visible)
   .guard_scalar("tooltip", "character", tooltip)
-  .guard_vector("groups", "WaveGroup", groups)
+  .guard_vector("groups", "WaveTableGroup", groups)
   .o <- list(table=list(
     name=name,
     columns=columns,

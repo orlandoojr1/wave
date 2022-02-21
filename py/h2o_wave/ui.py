@@ -1293,10 +1293,10 @@ def table_row(
     )
 
 
-def group(
+def table_group(
         label: str,
         rows: List[TableRow],
-) -> Group:
+) -> TableGroup:
     """Make rows within the table collapsible/expandable.
 
     This type of table is best used for cases when your data makes sense to be presented in chunks rather than a single flat list.
@@ -1305,9 +1305,9 @@ def group(
         label: The title of the group.
         rows: The rows in this group.
     Returns:
-        A `h2o_wave.types.Group` instance.
+        A `h2o_wave.types.TableGroup` instance.
     """
-    return Group(
+    return TableGroup(
         label,
         rows,
     )
@@ -1327,7 +1327,7 @@ def table(
         checkbox_visibility: Optional[str] = None,
         visible: Optional[bool] = None,
         tooltip: Optional[str] = None,
-        groups: Optional[List[Group]] = None,
+        groups: Optional[List[TableGroup]] = None,
 ) -> Component:
     """Create an interactive table.
 

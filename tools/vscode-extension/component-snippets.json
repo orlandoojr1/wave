@@ -594,12 +594,12 @@
     ],
     "description": "Create a minimal Wave TableRow."
   },
-  "Wave Group": {
-    "prefix": "w_group",
+  "Wave TableGroup": {
+    "prefix": "w_table_group",
     "body": [
-      "ui.group(label='$1', rows=[\n\t\t$2\t\t\n]),$0"
+      "ui.table_group(label='$1', rows=[\n\t\t$2\t\t\n]),$0"
     ],
-    "description": "Create a minimal Wave Group."
+    "description": "Create a minimal Wave TableGroup."
   },
   "Wave Table": {
     "prefix": "w_table",
@@ -1525,12 +1525,12 @@
     ],
     "description": "Create a full Wave TableRow."
   },
-  "Wave Full Group": {
-    "prefix": "w_full_group",
+  "Wave Full TableGroup": {
+    "prefix": "w_full_table_group",
     "body": [
-      "ui.group(label='$1', rows=[\n\t\t$2\t\t\n]),$0"
+      "ui.table_group(label='$1', rows=[\n\t\t$2\t\t\n]),$0"
     ],
-    "description": "Create a full Wave Group."
+    "description": "Create a full Wave TableGroup."
   },
   "Wave Full Table": {
     "prefix": "w_full_table",

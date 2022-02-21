@@ -69,7 +69,7 @@ interface TableRow {
  *
  * This type of table is best used for cases when your data makes sense to be presented in chunks rather than a single flat list.
  */
-interface Group {
+interface TableGroup {
   /** The title of the group. */
   label: S
   /** The rows in this group. */
@@ -121,7 +121,7 @@ export interface Table {
   /** An optional tooltip message displayed when a user clicks the help icon to the right of the component. */
   tooltip?: S
   /** Creates collapsible / expandable groups of data rows. Mutually exclusive with `rows` attr. */
-  groups?: Group[]
+  groups?: TableGroup[]
 }
 
 type WaveColumn = Fluent.IColumn & {

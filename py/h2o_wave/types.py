@@ -3367,7 +3367,7 @@ class TableRow:
         )
 
 
-class Group:
+class TableGroup:
     """Make rows within the table collapsible/expandable.
 
     This type of table is best used for cases when your data makes sense to be presented in chunks rather than a single flat list.
@@ -3377,8 +3377,8 @@ class Group:
             label: str,
             rows: List[TableRow],
     ):
-        _guard_scalar('Group.label', label, (str,), False, False, False)
-        _guard_vector('Group.rows', rows, (TableRow,), False, False, False)
+        _guard_scalar('TableGroup.label', label, (str,), False, False, False)
+        _guard_vector('TableGroup.rows', rows, (TableRow,), False, False, False)
         self.label = label
         """The title of the group."""
         self.rows = rows
@@ -3386,23 +3386,23 @@ class Group:
 
     def dump(self) -> Dict:
         """Returns the contents of this object as a dict."""
-        _guard_scalar('Group.label', self.label, (str,), False, False, False)
-        _guard_vector('Group.rows', self.rows, (TableRow,), False, False, False)
+        _guard_scalar('TableGroup.label', self.label, (str,), False, False, False)
+        _guard_vector('TableGroup.rows', self.rows, (TableRow,), False, False, False)
         return _dump(
             label=self.label,
             rows=[__e.dump() for __e in self.rows],
         )
 
     @staticmethod
-    def load(__d: Dict) -> 'Group':
+    def load(__d: Dict) -> 'TableGroup':
         """Creates an instance of this class using the contents of a dict."""
         __d_label: Any = __d.get('label')
-        _guard_scalar('Group.label', __d_label, (str,), False, False, False)
+        _guard_scalar('TableGroup.label', __d_label, (str,), False, False, False)
         __d_rows: Any = __d.get('rows')
-        _guard_vector('Group.rows', __d_rows, (dict,), False, False, False)
+        _guard_vector('TableGroup.rows', __d_rows, (dict,), False, False, False)
         label: str = __d_label
         rows: List[TableRow] = [TableRow.load(__e) for __e in __d_rows]
-        return Group(
+        return TableGroup(
             label,
             rows,
         )
@@ -3449,7 +3449,7 @@ class Table:
             checkbox_visibility: Optional[str] = None,
             visible: Optional[bool] = None,
             tooltip: Optional[str] = None,
-            groups: Optional[List[Group]] = None,
+            groups: Optional[List[TableGroup]] = None,
     ):
         _guard_scalar('Table.name', name, (str,), True, False, False)
         _guard_vector('Table.columns', columns, (TableColumn,), False, False, False)
@@ -3464,7 +3464,7 @@ class Table:
         _guard_enum('Table.checkbox_visibility', checkbox_visibility, _TableCheckboxVisibility, True)
         _guard_scalar('Table.visible', visible, (bool,), False, True, False)
         _guard_scalar('Table.tooltip', tooltip, (str,), False, True, False)
-        _guard_vector('Table.groups', groups, (Group,), False, True, False)
+        _guard_vector('Table.groups', groups, (TableGroup,), False, True, False)
         self.name = name
         """An identifying name for this component."""
         self.columns = columns
@@ -3509,7 +3509,7 @@ class Table:
         _guard_enum('Table.checkbox_visibility', self.checkbox_visibility, _TableCheckboxVisibility, True)
         _guard_scalar('Table.visible', self.visible, (bool,), False, True, False)
         _guard_scalar('Table.tooltip', self.tooltip, (str,), False, True, False)
-        _guard_vector('Table.groups', self.groups, (Group,), False, True, False)
+        _guard_vector('Table.groups', self.groups, (TableGroup,), False, True, False)
         return _dump(
             name=self.name,
             columns=[__e.dump() for __e in self.columns],
@@ -3571,7 +3571,7 @@ class Table:
         checkbox_visibility: Optional[str] = __d_checkbox_visibility
         visible: Optional[bool] = __d_visible
         tooltip: Optional[str] = __d_tooltip
-        groups: Optional[List[Group]] = None if __d_groups is None else [Group.load(__e) for __e in __d_groups]
+        groups: Optional[List[TableGroup]] = None if __d_groups is None else [TableGroup.load(__e) for __e in __d_groups]
         return Table(
             name,
             columns,
