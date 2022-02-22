@@ -363,7 +363,7 @@ const
             />
           </Fluent.Sticky>
         )
-      }, [groups, onColumnContextMenu]),
+      }, [groups, m.groups, onColumnContextMenu]),
       onRenderRow = (props?: Fluent.IDetailsRowProps) => props
         ? <Fluent.DetailsRow {...props} styles={{
           cell: { alignSelf: 'center', fontSize: 14, lineHeight: 20, color: cssVar('$text9') },
@@ -430,11 +430,6 @@ const
       </>
     )
   }
-
-// TODO: fix table reset
-// TODO: fix filtering
-// TODO: collapse/expand when clicking on group header
-// TODO: try out different props combination with groups
 
 export const
   XTable = ({ model: m }: { model: Table }) => {
@@ -664,12 +659,12 @@ export const
         setSelectedFilters(null)
         setSearchStr('')
 
-        setGroups(undefined)
+        setGroups(customGroups)
         setGroupByKey('*')
 
         filter(null)
         search()
-      }, [filter, search]),
+      }, [filter, search, customGroups]),
       selection = React.useMemo(() => new Fluent.Selection({ onSelectionChanged: () => { wave.args[m.name] = selection.getSelection().map(item => item.key as S) } }), [m.name]),
       computeHeight = () => {
         if (m.height) return m.height
