@@ -433,8 +433,8 @@ const
 
 export const
   XTable = ({ model: m }: { model: Table }) => {
-    React.useMemo(() => { if (m.groups) m.groupable = false }, [m]) // TODO: re-implement without using "m" dependency
     const
+      groupable = React.useMemo(() => { return m.groups ? false : m.groupable }, [m.groups, m.groupable]),
       rows = React.useMemo(() => {
         if (m.rows) return m.rows
         else if (m.groups) {
@@ -454,14 +454,15 @@ export const
         return item
       }, [m.columns]),
       items = React.useMemo(() =>
-        m.groups ? m.groups.reduce((acc, { rows, label }) => {
-          const item = (rows.map(r => {
-            return { ...getItem(r), group: label }
-          }))
-          acc.push(...item)
-          return acc
-        }, [] as (Fluent.IObjectWithKey & Dict<any> & { group?: string })[]) :
-          (m.rows || []).map(r => {
+        m.groups
+          ? m.groups.reduce((acc, { rows, label }) => {
+            const item = (rows.map(r => {
+              return { ...getItem(r), group: label }
+            }))
+            acc.push(...item)
+            return acc
+          }, [] as (Fluent.IObjectWithKey & Dict<any> & { group?: string })[])
+          : (m.rows || []).map(r => {
             return getItem(r)
           })
         , [m.rows, m.groups, getItem]),
@@ -479,7 +480,7 @@ export const
       [groups, setGroups] = React.useState<Fluent.IGroup[] | undefined>(customGroups),
       [groupByKey, setGroupByKey] = React.useState('*'),
       groupByOptions: Fluent.IDropdownOption[] = React.useMemo(() =>
-        m.groupable ? [{ key: '*', text: '(No Grouping)' }, ...m.columns.map(col => ({ key: col.name, text: col.label }))] : [], [m.columns, m.groupable]
+        groupable ? [{ key: '*', text: '(No Grouping)' }, ...m.columns.map(col => ({ key: col.name, text: col.label }))] : [], [m.columns, groupable]
       ),
       filter = React.useCallback((selectedFilters: Dict<S[]> | null) => {
         // If we have filters, check if any of the data-item's props (filter's keys) equals to any of its filter values.
@@ -496,23 +497,24 @@ export const
         const
           groupedBy = groupByF(filteredItems, groupByKey),
           groupedByKeys = Object.keys(groupedBy),
-          groups: Fluent.IGroup[] = groupedByKeys.map((key, i) => {
-            if (i !== 0) {
-              const prevKey = groupedByKeys[i - 1]
-              prevSum += groupedBy[prevKey].length
-            }
+          groups: Fluent.IGroup[] = m.groups
+            ? filteredItems.reduce((acc, { group }, idx) => {
+              const lastG = acc[acc.length - 1]
+              if (lastG?.key === group) lastG.count = lastG.count + 1
+              else acc.push({ key: group, name: group, startIndex: idx, count: 1, isCollapsed: false })
+              return acc
+            }, [] as Fluent.IGroup[])
+            : groupedByKeys.map((key, i) => {
+              if (i !== 0) {
+                const prevKey = groupedByKeys[i - 1]
+                prevSum += groupedBy[prevKey].length
+              }
 
-            let name = key
-            if (isNaN(Number(key)) && !isNaN(Date.parse(key))) name = new Date(key).toLocaleString()
+              let name = key
+              if (isNaN(Number(key)) && !isNaN(Date.parse(key))) name = new Date(key).toLocaleString()
 
-            return { key, name, startIndex: prevSum, count: groupedBy[key].length, isCollapsed: true }
-          }),
-          customG = m.groups ? filteredItems.reduce((acc, { group }, idx) => {
-            const lastG = acc[acc.length - 1]
-            if (lastG?.key === group) lastG.count = lastG.count + 1
-            else acc.push({ key: group, name: group, startIndex: idx, count: 1, isCollapsed: false })
-            return acc
-          }, [] as Fluent.IGroup[]) : undefined
+              return { key, name, startIndex: prevSum, count: groupedBy[key].length, isCollapsed: true }
+            })
 
         groups.sort(({ name: name1 }, { name: name2 }) => {
           const numName1 = Number(name1), numName2 = Number(name2)
@@ -524,7 +526,7 @@ export const
           return name2 < name1 ? 1 : -1
         })
 
-        return { groupedBy, groups: customG || groups }
+        return { groupedBy, groups }
       }, [m.groups]),
       initGroups = React.useCallback(() => {
         setGroupByKey(groupByKey => {
@@ -671,7 +673,7 @@ export const
         if (items.length > 10) return 500
 
         const
-          topToolbarHeight = searchableKeys.length || m.groupable ? 80 : 0,
+          topToolbarHeight = searchableKeys.length || groupable ? 80 : 0,
           headerHeight = 50,
           rowHeight = m.columns.some(c => c.cell_type)
             ? m.columns.some(c => c.cell_type?.progress) ? 76 : 48
@@ -720,6 +722,8 @@ export const
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     React.useEffect(() => setFilteredItems(items), [items])
+    console.log('m.groups', m.groups)
+    console.log('items', items)
 
     const dataTableProps: DataTable = React.useMemo(() => ({
       model: m,
@@ -737,13 +741,13 @@ export const
     return (
       <div data-test={m.name} style={{ position: 'relative', height: computeHeight() }}>
         <Fluent.Stack horizontal horizontalAlign='space-between' verticalAlign='end'>
-          {m.groupable && <Fluent.Dropdown data-test='groupby' label='Group by' selectedKey={groupByKey} onChange={onGroupByChange} options={groupByOptions} styles={{ root: { width: 300 } }} />}
+          {groupable && <Fluent.Dropdown data-test='groupby' label='Group by' selectedKey={groupByKey} onChange={onGroupByChange} options={groupByOptions} styles={{ root: { width: 300 } }} />}
           {!!searchableKeys.length && <Fluent.SearchBox data-test='search' placeholder='Search' onChange={onSearchChange} value={searchStr} styles={{ root: { width: '50%', maxWidth: 500 } }} />}
         </Fluent.Stack>
         <Fluent.ScrollablePane
           scrollbarVisibility={Fluent.ScrollbarVisibility.auto}
           styles={{
-            root: { top: m.groupable || searchableKeys.length ? 80 : 0, bottom: shouldShowFooter ? 46 : 0 },
+            root: { top: groupable || searchableKeys.length ? 80 : 0, bottom: shouldShowFooter ? 46 : 0 },
             stickyAbove: { right: important('0px'), border: border(2, 'transparent') },
             contentContainer: { border: border(2, cssVar('$neutralLight')), borderRadius: '4px 4px 0 0' }
           }}>

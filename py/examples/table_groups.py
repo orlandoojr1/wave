@@ -56,7 +56,7 @@ async def serve(q: Q):
                 ui.table_group("Foo company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_foo]),
                 ui.table_group("Bar company", [ui.table_row(name=issue.id, cells=[issue.text, issue.status, issue.created]) for issue in issues_bar], collapsed=False)],
             resettable=True,
-            height='800px'
+            height='800px',
         )
     ])
     await q.page.save()
