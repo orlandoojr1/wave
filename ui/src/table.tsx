@@ -722,8 +722,6 @@ export const
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     React.useEffect(() => setFilteredItems(items), [items])
-    console.log('m.groups', m.groups)
-    console.log('items', items)
 
     const dataTableProps: DataTable = React.useMemo(() => ({
       model: m,
