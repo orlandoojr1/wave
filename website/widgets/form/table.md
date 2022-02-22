@@ -131,7 +131,7 @@ q.page['example'] = ui.form_card(box='1 1 3 4', items=[
 ])
 ```
 
-## Group by
+## With group by
 
 Another cool feature of the Wave table is group by. All it takes is to specify a `groupable` option
 on the table and a dropdown will render with columns on which a user can group by data.
@@ -238,7 +238,7 @@ q.page['example'] = ui.form_card(box='1 1 3 3', items=[
 
 ## Custom groups
 
-If [groupable](#group-by) prop does not suit your needs, you can specify your custom groups with `groups` prop.
+If [groupable](#with-group-by) prop does not suit your needs, you can specify your custom groups with `groups` prop.
 With `collapsed` attribute you can set whether the group should be displayed in collapsed or expanded state by default.
 
 ```py
